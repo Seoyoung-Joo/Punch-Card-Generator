@@ -1,0 +1,65 @@
+@font-face {
+  font-family: 'Avara';
+  src: url('/fonts/Avara-Bold.otf') format('opentype');
+  font-weight: bold;
+  font-style: normal;
+}
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+:root {
+  --cream: #F5F0E8;
+  --card-bg: #FDF8F0;
+  --hole: #1A1A1A;
+  --text: #2C2C2C;
+  --red: #8B2020;
+  --red-hover: #7A1C1C;
+  --muted: #9E9E9E;
+  font-family: 'Avara', serif;
+}
+
+body {
+  background: var(--cream);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes slideInRight {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
+
+@keyframes slideOutRight {
+  from { transform: translateX(0); }
+  to   { transform: translateX(100%); }
+}
+
+.debug-panel-enter {
+  animation: slideInRight 0.28s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.debug-panel-exit {
+  animation: slideOutRight 0.28s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+input[type="range"] {
+  accent-color: var(--red);
+}
+
+button {
+  font-family: 'Avara', serif;
+}
