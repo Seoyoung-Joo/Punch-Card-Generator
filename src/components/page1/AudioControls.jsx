@@ -183,7 +183,7 @@ export default function AudioControls() {
                : '#8B2020',
         }}>
           {detected === 'thinking' ? 'claude is reading…'
-         : detected === 'offline'  ? '⚠ claude offline — check ANTHROPIC_API_KEY in .env'
+         : detected === 'offline'  ? 'local demo mode'
          : detected === 'none'     ? 'no strong emotion detected'
          : `emotion detected → ${detected}`}
         </div>
