@@ -3,6 +3,7 @@ const BLANK_ROWS       = 2
 const PATTERN_HOLE_R   = 1.75
 const CLIP_HOLE_R      = 1.5
 const SPROCKET_HOLE_R  = 1.75
+const SCALE_GUIDE_H    = 22
 
 export const MACHINES = [
   { id: 'brother_12',    label: '12-stitch 4.5mm Brother/Silver Reed/Studio', stitches: 12, stitchWidth: 4.5, rowHeight: 5.0, maxRows: 56 },
@@ -52,6 +53,7 @@ export class CutExporter {
     const totalRows   = BLANK_ROWS * 2 + patternRows
     const W = SIDE_MARGIN * 2 + stitches * stitchWidth
     const H = totalRows * rowHeight
+    const SVG_H = H + SCALE_GUIDE_H
 
     // 1. Card outline with direction notch
     const pts = [
@@ -116,10 +118,21 @@ export class CutExporter {
       ? `<!-- card ${cardN} of ${cardTotal} | pattern rows ${patternRowStart}–${patternRowEnd} -->\n  `
       : `<!-- pattern rows ${patternRowStart}–${patternRowEnd} -->\n  `
 
+    els.push(
+      `<g id="scale-guide" stroke="#ff00aa" fill="none" stroke-width="0.25">\n` +
+      `    <rect x="4" y="${fmt(H + 6)}" width="10" height="10"/>\n` +
+      `    <line x1="0" y1="${fmt(H + 19)}" x2="${fmt(W)}" y2="${fmt(H + 19)}"/>\n` +
+      `    <line x1="0" y1="${fmt(H + 17)}" x2="0" y2="${fmt(H + 21)}"/>\n` +
+      `    <line x1="${fmt(W)}" y1="${fmt(H + 17)}" x2="${fmt(W)}" y2="${fmt(H + 21)}"/>\n` +
+      `    <text x="17" y="${fmt(H + 12.8)}" fill="#ff00aa" stroke="none" font-size="3" font-family="monospace">10mm</text>\n` +
+      `    <text x="${fmt(W / 2)}" y="${fmt(H + 18)}" fill="#ff00aa" stroke="none" font-size="3" font-family="monospace" text-anchor="middle">card width ${fmt(W)}mm</text>\n` +
+      `  </g>`
+    )
+
     return (
       `<svg xmlns="http://www.w3.org/2000/svg" ` +
-      `width="${fmt(W)}mm" height="${fmt(H)}mm" ` +
-      `viewBox="0 0 ${fmt(W)} ${fmt(H)}" ` +
+      `width="${fmt(W)}mm" height="${fmt(SVG_H)}mm" ` +
+      `viewBox="0 0 ${fmt(W)} ${fmt(SVG_H)}" ` +
       `preserveAspectRatio="none">\n  ` +
       comment +
       els.join('\n  ') +
