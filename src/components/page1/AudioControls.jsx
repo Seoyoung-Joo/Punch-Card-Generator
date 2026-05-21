@@ -22,13 +22,14 @@ export default function AudioControls() {
   const [interim, setInterim] = useState('')
   const [listening, setListening] = useState(false)
   const [detected, setDetected]   = useState(null)
+  const [detectionSource, setDetectionSource] = useState(null)
   const [speechSupported, setSpeechSupported] = useState(false)
 
   const recRef = useRef(null)
 
-  const processText        = useCardStore(s => s.processText)
-  const resetCard          = useCardStore(s => s.resetCard)
-  const injectAudioEmotion = useCardStore(s => s.injectAudioEmotion)
+  const processText            = useCardStore(s => s.processText)
+  const processTextWithEmotion = useCardStore(s => s.processTextWithEmotion)
+  const resetCard              = useCardStore(s => s.resetCard)
 
   useEffect(() => {
     const rec = new SpeechRecognizer({
@@ -36,11 +37,17 @@ export default function AudioControls() {
         setValue(text)
         processText(text)
       },
-      onInterim: (text) => setInterim(text),
+      onInterim: (text, liveText) => {
+        setInterim(text)
+        if (liveText) {
+          setValue(liveText)
+          processText(liveText)
+        }
+      },
       onStop: (text) => {
         setListening(false)
         setInterim('')
-        if (text) runDetection(text)
+        if (text) detectAndBuild(text)
       },
       onError: () => setListening(false),
     })
@@ -55,16 +62,14 @@ export default function AudioControls() {
     return () => clearTimeout(timer)
   }, [value])
 
-  const runDetection = async (text) => {
+  const detectAndBuild = async (text) => {
     if (!text?.trim()) return
     setDetected('thinking')
+    setDetectionSource(null)
     const { emotion, phrase, source } = await classifyEmotion(text)
-    if (source === 'offline') {
-      setDetected('offline')
-    } else {
-      injectAudioEmotion(emotion || null, phrase || null)
-      setDetected(emotion || 'none')
-    }
+    processTextWithEmotion(text, emotion || null, phrase || null)
+    setDetectionSource(source)
+    setDetected(emotion || 'none')
   }
 
   const toggleListening = () => {
@@ -75,7 +80,9 @@ export default function AudioControls() {
     } else {
       setValue('')
       setDetected(null)
+      setDetectionSource(null)
       setInterim('')
+      resetCard()
       setListening(true)
       rec.start()
     }
@@ -85,21 +92,26 @@ export default function AudioControls() {
     setValue('')
     resetCard()
     setDetected(null)
+    setDetectionSource(null)
     setInterim('')
+  }
+
+  const handleInputChange = (e) => {
+    setValue(e.target.value)
+    setDetected(null)
+    setDetectionSource(null)
   }
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
-      processText(value.trim())
-      runDetection(value.trim())
+      detectAndBuild(value.trim())
     }
   }
 
   const handleDetect = () => {
     const text = value.trim()
     if (!text) return
-    processText(text)
-    runDetection(text)
+    detectAndBuild(text)
   }
 
   return (
@@ -123,7 +135,7 @@ export default function AudioControls() {
 
         <input
           value={value}
-          onChange={e => setValue(e.target.value)}
+          onChange={handleInputChange}
           onKeyDown={handleKeyDown}
           placeholder={speechSupported ? 'or type here…' : 'type your secret here…'}
           style={{
@@ -152,7 +164,7 @@ export default function AudioControls() {
               opacity: detected === 'thinking' ? 0.6 : 1,
             }}
           >
-            {detected === 'thinking' ? 'reading…' : 'detect →'}
+            {detected === 'thinking' ? 'detecting…' : 'detect →'}
           </button>
         )}
 
@@ -177,14 +189,13 @@ export default function AudioControls() {
         <div style={{
           fontSize: 11,
           fontFamily: 'monospace',
-          color: detected === 'offline'  ? '#C8BFAD'
-               : detected === 'thinking' ? '#A89888'
+          color: detected === 'thinking' ? '#A89888'
                : detected === 'none'     ? '#A89888'
                : '#8B2020',
         }}>
-          {detected === 'thinking' ? 'claude is reading…'
-         : detected === 'offline'  ? 'local demo mode'
+          {detected === 'thinking' ? 'detecting emotion...'
          : detected === 'none'     ? 'no strong emotion detected'
+         : detectionSource === 'local' ? `local emotion match → ${detected}`
          : `emotion detected → ${detected}`}
         </div>
       )}
@@ -195,14 +206,6 @@ export default function AudioControls() {
         </p>
       )}
 
-      <div style={{ fontSize: 10, color: '#C8BFAD', textAlign: 'center', lineHeight: 1.8, maxWidth: 480 }}>
-        <span style={{ color: '#8B2020', fontFamily: 'monospace', marginRight: 6 }}>emotion words →</span>
-        {EMOTION_WORDS.map((w, i) => (
-          <span key={w} style={{ fontFamily: 'monospace' }}>
-            {w}{i < EMOTION_WORDS.length - 1 ? <span style={{ color: '#ddd' }}>, </span> : ''}
-          </span>
-        ))}
-      </div>
     </div>
   )
 }

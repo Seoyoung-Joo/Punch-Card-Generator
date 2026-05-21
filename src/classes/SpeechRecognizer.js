@@ -5,9 +5,9 @@
  */
 export class SpeechRecognizer {
   /**
-   * @param {{ onFinal, onInterim, onStop, onError }} callbacks
+   * @param {{ onFinal, onInterim, onStop, onError, silenceMs?: number }} callbacks
    */
-  constructor({ onFinal, onInterim, onStop, onError } = {}) {
+  constructor({ onFinal, onInterim, onStop, onError, silenceMs = 10000 } = {}) {
     this.onFinal   = onFinal   || (() => {})
     this.onInterim = onInterim || (() => {})
     this.onStop    = onStop    || (() => {})
@@ -16,9 +16,28 @@ export class SpeechRecognizer {
     this.supported   = false
     this._active     = false
     this._finalText  = ''
+    this._interimText = ''
+    this._liveText   = ''
     this._rec        = null
+    this._silenceMs  = silenceMs
+    this._silenceTimer = null
 
     this._init()
+  }
+
+  _clearSilenceTimer() {
+    if (this._silenceTimer) {
+      clearTimeout(this._silenceTimer)
+      this._silenceTimer = null
+    }
+  }
+
+  _resetSilenceTimer() {
+    this._clearSilenceTimer()
+    if (!this._active || !this._silenceMs) return
+    this._silenceTimer = setTimeout(() => {
+      this.stop()
+    }, this._silenceMs)
   }
 
   _init() {
@@ -45,20 +64,29 @@ export class SpeechRecognizer {
         this._finalText = (this._finalText + ' ' + newFinal).trim()
         this.onFinal(this._finalText)
       }
-      this.onInterim(interim)
+
+      this._interimText = interim.trim()
+      this._liveText = [this._finalText, this._interimText].filter(Boolean).join(' ').trim()
+      this.onInterim(this._interimText, this._liveText)
+
+      if (newFinal || interim) {
+        this._resetSilenceTimer()
+      }
     }
 
     rec.onend = () => {
       if (this._active) {
         setTimeout(() => { try { rec.start() } catch (_) {} }, 100)
       } else {
-        this.onStop(this._finalText)
+        this._clearSilenceTimer()
+        this.onStop(this._liveText || this._finalText)
       }
     }
 
     rec.onerror = (e) => {
       if (e.error !== 'aborted') {
         this._active = false
+        this._clearSilenceTimer()
         this.onError(e.error)
       }
     }
@@ -70,12 +98,16 @@ export class SpeechRecognizer {
     if (!this.supported || this._active) return
     this._active    = true
     this._finalText = ''
+    this._interimText = ''
+    this._liveText = ''
+    this._resetSilenceTimer()
     try { this._rec.start() } catch (_) {}
   }
 
   stop() {
     if (!this._active) return
     this._active = false
+    this._clearSilenceTimer()
     try { this._rec.stop() } catch (_) {}
   }
 

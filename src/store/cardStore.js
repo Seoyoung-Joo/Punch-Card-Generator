@@ -19,8 +19,13 @@ function buildLibrary() {
   return new EmotionLibrary(patterns)
 }
 
+function buildClaudeLibrary() {
+  const claudePatterns = useEmotionStore.getState().claudePatterns
+  return new EmotionLibrary(claudePatterns)
+}
+
 function buildCard(tokens, tension) {
-  return PunchCard.fromTokens(tokens, buildLibrary(), tension)
+  return PunchCard.fromTokens(tokens, buildLibrary(), tension, buildClaudeLibrary())
 }
 
 export const useCardStore = create((set, get) => ({
@@ -34,8 +39,10 @@ export const useCardStore = create((set, get) => ({
   rawTranscript: '',
   epsilonAfterEmotion: true,
   gridColor: '#8B2020',
+  repeatCount: 1,
 
   setIsRecording: (v) => set({ isRecording: v }),
+  setRepeatCount: (n) => set({ repeatCount: n }),
   setIsTranscribing: (v) => set({ isTranscribing: v }),
   setRawTranscript: (t) => set({ rawTranscript: t }),
   setGridColor: (c) => set({ gridColor: c }),
@@ -59,6 +66,17 @@ export const useCardStore = create((set, get) => ({
   processText: (transcript) => {
     const { tension, epsilonAfterEmotion } = get()
     let tokens = tokenizer.tokenize(transcript)
+    tokens = applyEpsilonAfterEmotion(tokens, epsilonAfterEmotion)
+    const card = buildCard(tokens, tension)
+    set({ tokens, card, rawTranscript: transcript })
+  },
+
+  processTextWithEmotion: (transcript, emotionWord, phrase) => {
+    const { tension, epsilonAfterEmotion } = get()
+    let tokens = tokenizer.tokenize(transcript)
+    if (emotionWord) {
+      tokens = insertAudioEmotion(tokens, emotionWord, phrase)
+    }
     tokens = applyEpsilonAfterEmotion(tokens, epsilonAfterEmotion)
     const card = buildCard(tokens, tension)
     set({ tokens, card, rawTranscript: transcript })

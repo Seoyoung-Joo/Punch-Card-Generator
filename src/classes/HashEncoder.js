@@ -1,16 +1,19 @@
+import { PUNCH_COLS } from '../config/punchCard.js'
+
 export class HashEncoder {
   /**
-   * Converts a word + tension level into an 18-bit boolean pattern.
+   * Converts a word + tension level into a fixed-width boolean pattern.
    * Same word + same tension always returns the same pattern (deterministic).
    * @param {string} word
    * @param {number} tension - 1–5
-   * @returns {boolean[]} length 18
+   * @param {number} [cols]
+   * @returns {boolean[]}
    */
-  encode(word, tension) {
+  encode(word, tension, cols = PUNCH_COLS) {
     const hash = this.djb2(word)
     const key = this.tensionKey(tension)
     const combined = hash ^ key
-    return Array.from({ length: 18 }, (_, i) => Boolean((combined >> i) & 1))
+    return Array.from({ length: cols }, (_, i) => Boolean((combined >> i) & 1))
   }
 
   /**

@@ -18,7 +18,7 @@ export class Exporter {
       showLabels = true,
     } = options
 
-    const cols = 18
+    const cols = card.cols || card.getRow(0)?.length || 24
     const pageRows = 24
     const actualRows = card.totalRows()
     const rows = Math.ceil(actualRows / pageRows) * pageRows  // pad to full 24-row sets
@@ -114,7 +114,7 @@ export class Exporter {
       cellMm   = 3.5,
       holeR    = 1.2,
     } = options
-    const cols = 18
+    const cols = card.cols || card.getRow(0)?.length || 24
     const totalRows = card.totalRows()
     // Always pad to a full multiple of pageRows
     const paddedTotal = Math.ceil(totalRows / pageRows) * pageRows
@@ -175,12 +175,13 @@ export class Exporter {
    */
   toBitmap(card) {
     const canvas = document.createElement('canvas')
-    canvas.width = 18
+    const cols = card.cols || card.getRow(0)?.length || 24
+    canvas.width = cols
     canvas.height = card.totalRows()
     const ctx = canvas.getContext('2d')
     for (let r = 0; r < card.totalRows(); r++) {
       const row = card.getRow(r)
-      for (let c = 0; c < 18; c++) {
+      for (let c = 0; c < cols; c++) {
         ctx.fillStyle = row[c] ? '#1A1A1A' : '#f7f2ea'
         ctx.fillRect(c, r, 1, 1)
       }

@@ -75,7 +75,7 @@ export function shuffleWords(tokens, seed) {
  */
 export function insertAudioEmotion(tokens, emotionWord, phrase) {
   const newToken = emotionWord
-    ? { word: emotionWord, type: 'emotion', source: 'audio-emotion', intensity: 2 }
+    ? { word: emotionWord, type: 'emotion', source: 'audio-emotion', intensity: 1 }
     : { word: 'neutral', type: 'emotion', source: 'audio-emotion', intensity: 1 }
 
   let insertAt = tokens.length

@@ -1,5 +1,6 @@
 import { EMOTION_PATTERNS } from '../data/emotionPatterns.js'
 import { EMOTION_WORDS, resolveEmotion, isFiller } from './EmotionWords.js'
+import { fitPatternToCols } from '../config/punchCard.js'
 
 // Re-export so existing imports from EmotionLibrary still work
 export { EMOTION_WORDS, FILLER_WORDS } from './EmotionWords.js'
@@ -10,7 +11,7 @@ export class EmotionLibrary {
     this.patterns = new Map(
       Object.entries(patterns).map(([word, rows]) => [
         word,
-        rows.map(row => row.map(v => !!v)),
+        fitPatternToCols(rows),
       ])
     )
   }
@@ -20,7 +21,7 @@ export class EmotionLibrary {
   }
 
   setPattern(word, pattern) {
-    this.patterns.set(word, pattern)
+    this.patterns.set(word, fitPatternToCols(pattern))
   }
 
   /** @param {string} word @returns {boolean} */

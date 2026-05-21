@@ -84,13 +84,17 @@ function CardRow({ row, meta, rowIndex, gridColor }) {
         paddingRight: 10,
         fontFamily: 'monospace',
         overflow: 'hidden',
-        textOverflow: 'ellipsis',
-        whiteSpace: 'nowrap',
         flexShrink: 0,
         fontStyle: isEpsilon ? 'italic' : 'normal',
         fontWeight: isFirstEmotionRow ? 600 : 400,
+        lineHeight: 1.3,
       }}>
-        {label}
+        <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{label}</div>
+        {isFirstEmotionRow && meta.original && (
+          <div style={{ fontSize: 8, fontWeight: 400, color: '#c4a0a0', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+            (*{meta.original})
+          </div>
+        )}
       </div>
 
       {/* Hole grid */}
@@ -134,11 +138,19 @@ export default function CardGrid() {
   const gridColor = useCardStore(s => s.gridColor)
   const playPunch = usePunchSound()
   const prevCardRef = useRef(null)
+  const cols = card?.cols || card?.getRow(0)?.length || 24
 
   useEffect(() => {
-    if (card && card !== prevCardRef.current) {
+    const prevCard = prevCardRef.current
+
+    if (card && card !== prevCard) {
+      if (prevCard && card.totalRows() > prevCard.totalRows()) {
+        playPunch(card, prevCard.totalRows())
+      } else if (!prevCard) {
+        playPunch(card, 0)
+      }
+
       prevCardRef.current = card
-      playPunch(card)
     }
   }, [card, playPunch])
 
@@ -164,7 +176,7 @@ export default function CardGrid() {
         paddingLeft: GRIP_W + BELT_W + LABEL_W,
         marginBottom: 4,
       }}>
-        {Array.from({ length: 18 }, (_, i) => (
+        {Array.from({ length: cols }, (_, i) => (
           <div key={i} style={{
             width: CELL,
             fontSize: 8,

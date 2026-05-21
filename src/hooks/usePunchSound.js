@@ -7,53 +7,46 @@ function getAudioCtx(ref) {
   return ref.current
 }
 
-function playPunch(audioCtx, time, punchedCount) {
-  const duration = 0.045
-  const bufferSize = Math.floor(audioCtx.sampleRate * duration)
-  const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate)
-  const data = buffer.getChannelData(0)
-
-  for (let i = 0; i < bufferSize; i++) {
-    // White noise with exponential decay envelope
-    const env = Math.pow(1 - i / bufferSize, 4)
-    data[i] = (Math.random() * 2 - 1) * env
-  }
-
-  const source = audioCtx.createBufferSource()
-  source.buffer = buffer
-
-  // Low bandpass gives it a "thunk" character
-  const filter = audioCtx.createBiquadFilter()
-  filter.type = 'bandpass'
-  filter.frequency.value = 220 + punchedCount * 4
-  filter.Q.value = 0.8
-
-  // Gain scaled by how many holes are punched in this row
+function playRowNote(audioCtx, time, punchedCount, rowIndex, cols = 24) {
+  const duration = 0.09
+  const osc = audioCtx.createOscillator()
   const gain = audioCtx.createGain()
-  const volume = 0.12 + Math.min(punchedCount / 18, 1) * 0.18
-  gain.gain.setValueAtTime(volume, time)
+  const filter = audioCtx.createBiquadFilter()
+
+  const scale = [0, 3, 5, 7, 10]
+  const semitone = scale[rowIndex % scale.length] + Math.floor(rowIndex / scale.length) * 12
+  const base = 220
+  const densityLift = Math.min(punchedCount, 12) * 3
+  const freq = base * Math.pow(2, semitone / 12) + densityLift
+
+  osc.type = 'triangle'
+  osc.frequency.setValueAtTime(freq, time)
+
+  filter.type = 'lowpass'
+  filter.frequency.setValueAtTime(1900, time)
+  filter.frequency.exponentialRampToValueAtTime(520, time + duration)
+
+  const volume = 0.18 + Math.min(punchedCount / cols, 1) * 0.22
+  gain.gain.setValueAtTime(0.0001, time)
+  gain.gain.exponentialRampToValueAtTime(volume, time + 0.006)
   gain.gain.exponentialRampToValueAtTime(0.0001, time + duration)
 
-  source.connect(filter)
+  osc.connect(filter)
   filter.connect(gain)
   gain.connect(audioCtx.destination)
-  source.start(time)
+  osc.start(time)
+  osc.stop(time + duration + 0.01)
 }
 
 /**
- * Returns a function that plays a sequential punch sound for each row in the card.
- * Rows with more holes punch louder.
+ * Returns a function that plays short typewriter-like notes for newly added rows.
+ * Rows with more holes play slightly brighter and louder.
  */
 export function usePunchSound() {
   const ctxRef = useRef(null)
-  const timeoutsRef = useRef([])
 
-  const play = useCallback((card) => {
+  const play = useCallback((card, startRow = 0) => {
     if (!card || card.totalRows() === 0) return
-
-    // Clear any in-progress sequence
-    timeoutsRef.current.forEach(clearTimeout)
-    timeoutsRef.current = []
 
     const audioCtx = getAudioCtx(ctxRef)
 
@@ -62,17 +55,17 @@ export function usePunchSound() {
       audioCtx.resume()
     }
 
-    const rowInterval = 0.072 // seconds between row punches
+    const rowInterval = 0.085
     const now = audioCtx.currentTime + 0.02
 
     const totalRows = card.totalRows()
-    for (let ri = 0; ri < totalRows; ri++) {
+    for (let ri = Math.max(0, startRow); ri < totalRows; ri++) {
       const row = card.getRow(ri)
       const punchedCount = row.filter(Boolean).length
       if (punchedCount === 0) continue // silent for epsilon rows
 
-      const t = now + ri * rowInterval
-      playPunch(audioCtx, t, punchedCount)
+      const t = now + (ri - startRow) * rowInterval
+      playRowNote(audioCtx, t, punchedCount, ri, row.length || card.cols || 24)
     }
   }, [])
 

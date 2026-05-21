@@ -9,29 +9,29 @@ export const FILLER_WORDS = [
 ]
 
 export const EMOTION_SYNONYMS = {
-  love:    ['obsessed', 'crazy', 'adore', 'crush', 'smitten', 'devoted', 'fond', 'attached', 'care', 'caring', 'soft', 'sweet', 'butterflies', 'romantic', 'falling', 'infatuated', 'dreamy', 'hooked', 'head', 'heart'],
-  hate:    ['despise', 'disgusted', 'gross', 'loathe', 'annoying', 'irritating', 'horrible', 'toxic', 'repulsed', 'bitter', 'resentful', 'resent', 'unbearable', 'insufferable', 'revolting', 'sickening', 'vile', 'awful', 'terrible', 'dreadful'],
-  scared:  ['terrified', 'freaked', 'shaking', 'panicking', 'spooked', 'paranoid', 'jumpy', 'rattled', 'shook', 'trembling', 'dreading', 'unsafe', 'creeped', 'tense', 'frozen', 'helpless', 'vulnerable', 'panic', 'horrified', 'petrified'],
-  sad:     ['upset', 'unhappy', 'depressed', 'crying', 'gloomy', 'heartbroken', 'devastated', 'miserable', 'crushed', 'broken', 'low', 'heavy', 'tearful', 'dark', 'down', 'rough', 'blue', 'hopeless', 'hurting', 'struggling'],
-  angry:   ['mad', 'pissed', 'frustrated', 'annoyed', 'furious', 'irritated', 'fuming', 'livid', 'agitated', 'aggravated', 'heated', 'triggered', 'offended', 'bothered', 'snapped', 'exploded', 'seething', 'outraged', 'raging', 'ticked'],
+  love:    ['obsessed', 'adore', 'crush', 'smitten', 'devoted', 'fond', 'attached', 'care', 'caring', 'soft', 'sweet', 'butterflies', 'romantic', 'falling', 'infatuated', 'dreamy', 'hooked', 'heart', 'cute', 'cherish', 'favorite', 'warm'],
+  hate:    ['despise', 'disgusted', 'gross', 'loathe', 'annoying', 'irritating', 'horrible', 'toxic', 'repulsed', 'bitter', 'resentful', 'resent', 'unbearable', 'awful', 'terrible', 'dreadful', 'ugh', 'ew', 'sick', 'nasty', 'overit'],
+  scared:  ['terrified', 'freaked', 'shaking', 'panicking', 'spooked', 'paranoid', 'jumpy', 'rattled', 'shook', 'trembling', 'dreading', 'unsafe', 'creeped', 'tense', 'frozen', 'helpless', 'vulnerable', 'panic', 'horrified', 'petrified', 'startled'],
+  sad:     ['upset', 'unhappy', 'depressed', 'crying', 'gloomy', 'heartbroken', 'devastated', 'miserable', 'crushed', 'broken', 'low', 'heavy', 'tearful', 'dark', 'down', 'rough', 'blue', 'hopeless', 'hurting', 'struggling', 'bummed', 'sucks'],
+  angry:   ['mad', 'pissed', 'frustrated', 'annoyed', 'furious', 'irritated', 'fuming', 'livid', 'agitated', 'aggravated', 'heated', 'triggered', 'offended', 'bothered', 'snapped', 'exploded', 'seething', 'outraged', 'raging', 'ticked', 'upset'],
   lonely:  ['alone', 'isolated', 'ignored', 'forgotten', 'invisible', 'excluded', 'unwanted', 'rejected', 'abandoned', 'distant', 'disconnected', 'outsider', 'separated', 'hollow', 'stranded', 'solitary', 'overlooked', 'unnoticed', 'unloved', 'adrift'],
-  hurt:    ['pained', 'wounded', 'bruised', 'betrayed', 'stung', 'crushed', 'broken', 'shattered', 'wronged', 'mistreated', 'used', 'disrespected', 'dismissed', 'abandoned', 'lied', 'cheated', 'backstabbed', 'blindsided', 'let down', 'gutted'],
+  hurt:    ['pained', 'wounded', 'bruised', 'betrayed', 'stung', 'crushed', 'broken', 'shattered', 'wronged', 'mistreated', 'used', 'disrespected', 'dismissed', 'abandoned', 'lied', 'cheated', 'backstabbed', 'blindsided', 'gutted'],
   lost:    ['confused', 'stuck', 'unsure', 'clueless', 'blank', 'wandering', 'searching', 'uncertain', 'aimless', 'scattered', 'overwhelmed', 'dazed', 'spinning', 'idk', 'directionless', 'hopeless', 'stranded', 'helpless', 'nowhere', 'unmoored'],
-  tired:   ['exhausted', 'drained', 'sleepy', 'burnt', 'spent', 'wiped', 'worn', 'sluggish', 'dragging', 'slow', 'blah', 'meh', 'depleted', 'checked', 'lifeless', 'fatigued', 'beat', 'dead', 'overworked', 'done'],
-  sorry:   ['regret', 'regretful', 'apologize', 'messed', 'mistake', 'ashamed', 'oops', 'apologizing', 'embarrassed', 'remorse', 'accountable', 'screwed', 'blew', 'wronged', 'failed', 'ruined', 'broke', 'damaged', 'harmed', 'caused'],
-  miss:    ['wishing', 'homesick', 'nostalgic', 'remember', 'remembered', 'reminiscing', 'dreaming', 'longing', 'wished', 'replaying', 'craving', 'aching', 'gone', 'away', 'back', 'without', 'thinking', 'yearning', 'pining', 'wanting'],
+  tired:   ['exhausted', 'drained', 'sleepy', 'burnt', 'spent', 'wiped', 'worn', 'sluggish', 'dragging', 'slow', 'blah', 'meh', 'depleted', 'checked', 'lifeless', 'fatigued', 'beat', 'dead', 'overworked', 'done', 'sleep', 'sick'],
+  sorry:   ['regret', 'regretful', 'apologize', 'messed', 'mistake', 'ashamed', 'oops', 'apologizing', 'embarrassed', 'remorse', 'screwed', 'blew', 'wronged', 'failed', 'ruined', 'broke', 'damaged', 'harmed', 'caused'],
+  miss:    ['wishing', 'homesick', 'nostalgic', 'remember', 'remembered', 'reminiscing', 'dreaming', 'longing', 'wished', 'replaying', 'craving', 'aching', 'yearning', 'pining', 'wanting', 'memories', 'memory', 'missed'],
   shame:   ['embarrassed', 'humiliated', 'mortified', 'judged', 'exposed', 'awkward', 'cringe', 'cringed', 'ridiculous', 'stupid', 'dumb', 'pathetic', 'worthless', 'useless', 'failure', 'laughed', 'mocked', 'belittled', 'small', 'inferior'],
-  grief:   ['mourning', 'grieving', 'loss', 'died', 'dead', 'gone', 'heartache', 'devastated', 'shattered', 'weeping', 'sobbing', 'crying', 'aching', 'suffering', 'agony', 'tragedy', 'traumatized', 'bereaved', 'inconsolable', 'wrecked'],
-  numb:    ['nothing', 'blank', 'whatever', 'flat', 'hollow', 'disconnected', 'zoned', 'spaced', 'absent', 'shutdown', 'cold', 'robotic', 'autopilot', 'distant', 'detached', 'switched', 'indifferent', 'apathetic', 'checked', 'vacant'],
-  rage:    ['exploding', 'screaming', 'snapped', 'furious', 'violent', 'explosive', 'flipping', 'wild', 'manic', 'savage', 'raging', 'boiling', 'uncontrollable', 'losing', 'fire', 'unhinged', 'berserk', 'irate', 'murderous', 'seething'],
-  joy:     ['happy', 'excited', 'amazing', 'awesome', 'cool', 'wonderful', 'fantastic', 'pumped', 'stoked', 'thrilled', 'glad', 'pleased', 'delighted', 'cheerful', 'upbeat', 'grinning', 'laughing', 'beaming', 'great', 'good'],
-  hope:    ['hopefully', 'wishing', 'positive', 'optimistic', 'believe', 'possible', 'someday', 'eventually', 'praying', 'manifesting', 'trusting', 'waiting', 'anticipating', 'forward', 'better', 'brighter', 'improving', 'healing', 'rising', 'starting'],
-  fear:    ['terrified', 'scared', 'dreading', 'worried', 'panicking', 'afraid', 'freaked', 'paranoid', 'unsafe', 'threatened', 'shaking', 'avoiding', 'hiding', 'catastrophizing', 'dreads', 'phobia', 'nervous', 'fearing', 'alarmed', 'uneasy'],
-  anxious: ['stressed', 'worried', 'overthinking', 'nervous', 'tense', 'panicking', 'spiraling', 'restless', 'jittery', 'uneasy', 'agitated', 'freaking', 'racing', 'ruminating', 'catastrophizing', 'obsessing', 'fixating', 'dreading', 'hyperventilating', 'twitchy'],
-  proud:   ['accomplished', 'succeeded', 'won', 'achieved', 'satisfied', 'confident', 'strong', 'capable', 'validated', 'recognized', 'nailed', 'crushed', 'killed', 'pulled', 'earned', 'worked', 'deserved', 'triumphant', 'fulfilled', 'empowered'],
-  jealous: ['envious', 'envy', 'comparing', 'insecure', 'replaced', 'overlooked', 'inferior', 'inadequate', 'competitive', 'possessive', 'suspicious', 'threatened', 'bitter', 'resentful', 'coveting', 'second', 'behind', 'overlooked', 'sidelined', 'passed'],
-  guilty:  ['regret', 'wrong', 'responsible', 'caused', 'blaming', 'screwed', 'ruined', 'hurt', 'failed', 'mistake', 'fault', 'burden', 'haunted', 'carrying', 'tormented', 'confessing', 'owning', 'remorse', 'culpable', 'ashamed'],
-  empty:   ['nothing', 'hollow', 'blank', 'pointless', 'meaningless', 'void', 'flat', 'lifeless', 'robot', 'surviving', 'bare', 'vapid', 'barren', 'gone', 'absent', 'cold', 'dark', 'missing', 'incomplete', 'unfulfilled'],
+  grief:   ['mourning', 'grieving', 'loss', 'died', 'dead', 'gone', 'heartache', 'devastated', 'shattered', 'weeping', 'sobbing', 'crying', 'aching', 'suffering', 'agony', 'tragedy', 'traumatized', 'bereaved', 'wrecked'],
+  numb:    ['nothing', 'blank', 'whatever', 'flat', 'hollow', 'disconnected', 'zoned', 'spaced', 'absent', 'shutdown', 'cold', 'robotic', 'autopilot', 'distant', 'detached', 'indifferent', 'apathetic', 'checked', 'vacant', 'emptyish'],
+  rage:    ['exploding', 'screaming', 'snapped', 'furious', 'violent', 'explosive', 'flipping', 'wild', 'raging', 'boiling', 'uncontrollable', 'losing', 'fire', 'unhinged', 'berserk', 'irate', 'seething'],
+  joy:     ['happy', 'excited', 'amazing', 'awesome', 'cool', 'wonderful', 'fantastic', 'pumped', 'stoked', 'thrilled', 'glad', 'pleased', 'delighted', 'cheerful', 'upbeat', 'grinning', 'laughing', 'beaming', 'great', 'good', 'yay', 'nice', 'fun'],
+  hope:    ['hopefully', 'wishing', 'positive', 'optimistic', 'believe', 'possible', 'someday', 'eventually', 'praying', 'manifesting', 'trusting', 'anticipating', 'forward', 'better', 'brighter', 'improving', 'healing', 'rising'],
+  fear:    ['terrified', 'scared', 'dreading', 'worried', 'panicking', 'afraid', 'freaked', 'paranoid', 'unsafe', 'threatened', 'shaking', 'avoiding', 'hiding', 'dreads', 'phobia', 'nervous', 'fearing', 'alarmed', 'uneasy'],
+  anxious: ['stressed', 'worried', 'overthinking', 'nervous', 'tense', 'panicking', 'spiraling', 'restless', 'jittery', 'uneasy', 'agitated', 'racing', 'ruminating', 'obsessing', 'fixating', 'dreading', 'twitchy', 'stress'],
+  proud:   ['accomplished', 'succeeded', 'won', 'achieved', 'satisfied', 'confident', 'strong', 'capable', 'validated', 'recognized', 'nailed', 'crushed', 'earned', 'worked', 'deserved', 'fulfilled', 'empowered'],
+  jealous: ['envious', 'envy', 'comparing', 'insecure', 'replaced', 'overlooked', 'inferior', 'inadequate', 'competitive', 'possessive', 'suspicious', 'threatened', 'bitter', 'resentful', 'second', 'behind', 'sidelined', 'passed'],
+  guilty:  ['regret', 'wrong', 'responsible', 'caused', 'blaming', 'screwed', 'ruined', 'hurt', 'failed', 'mistake', 'fault', 'burden', 'haunted', 'carrying', 'tormented', 'confessing', 'owning', 'remorse', 'ashamed'],
+  empty:   ['nothing', 'hollow', 'blank', 'pointless', 'meaningless', 'void', 'flat', 'lifeless', 'robot', 'surviving', 'bare', 'gone', 'absent', 'cold', 'dark', 'missing', 'incomplete', 'unfulfilled'],
   alive:   ['free', 'awake', 'real', 'present', 'electric', 'buzzing', 'glowing', 'full', 'whole', 'powerful', 'unstoppable', 'thriving', 'energized', 'lit', 'invincible', 'vibrant', 'fierce', 'burning', 'fire', 'radiant'],
 }
 
@@ -98,4 +98,22 @@ export function resolveEmotion(word) {
  */
 export function isFiller(word) {
   return FILLER_WORDS.includes(word)
+}
+
+// Bigram phrases where meaning depends on context — checked before word-by-word scan
+export const PHRASE_EMOTIONS = {
+  'freaking out':     'anxious',
+  'freaking cool':    'alive',
+  'freaking awesome': 'alive',
+  'freaking amazing': 'joy',
+  'freaking love':    'love',
+  'freaking hate':    'hate',
+  'so cool':          'alive',
+  'so good':          'joy',
+  'so happy':         'joy',
+  'so sad':           'sad',
+  'so tired':         'tired',
+  'so done':          'numb',
+  'not okay':         'hurt',
+  'not fine':         'hurt',
 }

@@ -5,6 +5,20 @@
   font-style: normal;
 }
 
+@font-face {
+  font-family: 'Tiny5x3';
+  src: url('/fonts/TINY5x3GX.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Anthony';
+  src: url('/fonts/Anthony.otf') format('opentype');
+  font-weight: normal;
+  font-style: normal;
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -38,6 +52,20 @@ body {
   50% { opacity: 0; }
 }
 
+@keyframes dotBlink {
+  0%, 56%, 100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  57%, 63% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  64% {
+    opacity: 0;
+  }
+}
+
 @keyframes slideInRight {
   from { transform: translateX(100%); }
   to   { transform: translateX(0); }
@@ -58,6 +86,22 @@ body {
 
 input[type="range"] {
   accent-color: var(--red);
+}
+
+.knit-canvas-wrap::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.knit-canvas-wrap::-webkit-scrollbar-track {
+  background: transparent;
+}
+.knit-canvas-wrap::-webkit-scrollbar-thumb {
+  background: var(--red);
+  border-radius: 3px;
+}
+.knit-canvas-wrap {
+  scrollbar-color: var(--red) transparent;
+  scrollbar-width: thin;
 }
 
 button {

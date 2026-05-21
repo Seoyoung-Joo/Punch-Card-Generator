@@ -43,7 +43,8 @@ export class Tokenizer {
       } else if (classification === 'emotion') {
         const canonical = this.emotionLibrary.resolveEmotion(clean)
         const intensity = this.detectIntensity(wordToken.word)
-        tokens.push({ word: canonical || clean, type: 'emotion', source: 'speech', timestamp: wordToken.start, intensity })
+        const original = canonical && canonical !== clean ? clean : undefined
+        tokens.push({ word: canonical || clean, type: 'emotion', source: 'speech', timestamp: wordToken.start, intensity, original })
       } else {
         tokens.push({ word: clean, type: 'word', source: 'speech', timestamp: wordToken.start })
       }

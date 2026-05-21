@@ -7,16 +7,20 @@ import RowDragLayer from './components/page1/RowDragLayer.jsx'
 import TokenDebugPanel from './components/page1/TokenDebugPanel.jsx'
 import ExportButton from './components/page1/ExportButton.jsx'
 import KnitPreview from './components/page2/KnitPreview.jsx'
+import MiniKnitCanvas from './components/page1/MiniKnitCanvas.jsx'
 import EmotionPatternEditor from './components/shared/EmotionPatternEditor.jsx'
+import SplashScreen from './components/SplashScreen.jsx'
+import { useCardStore } from './store/cardStore.js'
 
 const PAGES = ['record', 'knit', 'edit']
+const EDIT_PASSWORD = '3020470'
 
 const NAV_BTN = (active) => ({
   padding: '11px 16px',
   borderRadius: 6,
   border: 'none',
-  background: active ? '#8B2020' : 'transparent',
-  color: active ? '#fff' : '#A89888',
+  background: 'transparent',
+  color: active ? '#fff' : '#C46060',
   cursor: 'pointer',
   fontSize: 13,
   fontFamily: "'Avara', serif",
@@ -26,12 +30,94 @@ const NAV_BTN = (active) => ({
   transition: 'background 0.15s',
 })
 
+function LockedEditPanel({ children }) {
+  const [unlocked, setUnlocked] = useState(false)
+  const [password, setPassword] = useState('')
+  const [error, setError] = useState(false)
+
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    if (password === EDIT_PASSWORD) {
+      setUnlocked(true)
+      setError(false)
+    } else {
+      setError(true)
+      setPassword('')
+    }
+  }
+
+  if (unlocked) return children
+
+  return (
+    <form
+      onSubmit={handleSubmit}
+      style={{
+        minHeight: '60vh',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 12,
+      }}
+    >
+      <input
+        type="password"
+        value={password}
+        onChange={e => {
+          setPassword(e.target.value)
+          setError(false)
+        }}
+        placeholder="password"
+        autoFocus
+        style={{
+          width: 180,
+          padding: '10px 14px',
+          borderRadius: 6,
+          border: `1px solid ${error ? '#8B2020' : '#C8BFAD'}`,
+          background: '#FDF8F0',
+          color: '#2C2C2C',
+          fontSize: 13,
+          fontFamily: 'monospace',
+          outline: 'none',
+          textAlign: 'center',
+        }}
+      />
+      <button
+        type="submit"
+        style={{
+          padding: '8px 18px',
+          background: '#8B2020',
+          color: '#fff',
+          border: 'none',
+          borderRadius: 6,
+          fontSize: 13,
+          cursor: 'pointer',
+          fontFamily: "'Avara', serif",
+        }}
+      >
+        unlock edit
+      </button>
+      {error && (
+        <span style={{ fontSize: 10, color: '#8B2020', fontFamily: 'monospace' }}>
+          wrong password
+        </span>
+      )}
+    </form>
+  )
+}
+
 export default function App() {
   const [page, setPage] = useState('record')
   const [debugOpen, setDebugOpen] = useState(false)
+  const [hasVisitedKnit, setHasVisitedKnit] = useState(false)
+  const [showMiniKnit, setShowMiniKnit] = useState(false)
+  const [showSplash, setShowSplash] = useState(true)
+  const card = useCardStore(s => s.card)
+  const hasCard = !!card && card.totalRows() > 0
 
   return (
     <DndContext>
+      {showSplash && <SplashScreen onStart={() => setShowSplash(false)} />}
       <RowDragLayer />
 
       <div style={{ display: 'flex', minHeight: '100vh', background: '#F5F0E8' }}>
@@ -39,8 +125,8 @@ export default function App() {
         {/* ── Left sidebar nav ── */}
         <nav style={{
           width: 120,
-          background: '#EDE8DF',
-          boxShadow: '2px 0 10px rgba(0,0,0,0.06)',
+          background: '#8B2020',
+          borderRight: 'none',
           display: 'flex',
           flexDirection: 'column',
           padding: '28px 10px 20px',
@@ -50,15 +136,26 @@ export default function App() {
           top: 0,
           height: '100vh',
         }}>
-          {PAGES.map(p => (
-            <button
-              key={p}
-              onClick={() => setPage(p)}
-              style={NAV_BTN(page === p)}
-            >
-              {p}
-            </button>
-          ))}
+          {PAGES.map(p => {
+            const active = page === p
+            return (
+              <button
+                key={p}
+                onClick={() => { setPage(p); if (p === 'knit') setHasVisitedKnit(true) }}
+                style={{ ...NAV_BTN(active), display: 'flex', alignItems: 'center', gap: 8 }}
+              >
+                <span style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: '50%',
+                  flexShrink: 0,
+                  background: active ? '#fff' : 'transparent',
+                  border: active ? 'none' : '1px solid #C46060',
+                }} />
+                {p}
+              </button>
+            )
+          })}
 
           {/* 0/1 debug panel toggle */}
           <div style={{ marginTop: 'auto' }}>
@@ -67,9 +164,9 @@ export default function App() {
               style={{
                 padding: '8px 16px',
                 borderRadius: 6,
-                border: `1px solid ${debugOpen ? '#8B2020' : '#C8BFAD'}`,
-                background: debugOpen ? '#8B202015' : 'transparent',
-                color: debugOpen ? '#8B2020' : '#B0A898',
+                border: `1px solid ${debugOpen ? '#fff' : 'rgba(255,255,255,0.3)'}`,
+                background: debugOpen ? 'rgba(255,255,255,0.18)' : 'transparent',
+                color: debugOpen ? '#fff' : 'rgba(255,255,255,0.45)',
                 fontSize: 11,
                 cursor: 'pointer',
                 fontFamily: 'monospace',
@@ -99,24 +196,49 @@ export default function App() {
               <ControlsBar />
               <CardGrid />
               <ExportButton />
+              {hasVisitedKnit && hasCard && (
+                <button
+                  onClick={() => setShowMiniKnit(v => !v)}
+                  style={{
+                    padding: '6px 14px',
+                    background: 'transparent',
+                    color: showMiniKnit ? '#8B2020' : '#B0A898',
+                    border: `1px solid ${showMiniKnit ? '#8B2020' : '#C8BFAD'}`,
+                    borderRadius: 6,
+                    fontSize: 11,
+                    cursor: 'pointer',
+                    fontFamily: 'monospace',
+                  }}
+                >
+                  knit preview {showMiniKnit ? '▲' : '▼'}
+                </button>
+              )}
+              {hasVisitedKnit && hasCard && showMiniKnit && (
+                <MiniKnitCanvas onClickKnit={() => setPage('knit')} />
+              )}
             </div>
           )}
 
-          {page === 'knit' && <KnitPreview />}
+          <div style={{ display: page === 'knit' ? 'block' : 'none', width: '100%' }}>
+            <KnitPreview />
+          </div>
 
           {page === 'edit' && (
-            <div>
-              <h2 style={{
-                fontSize: 18,
-                fontFamily: 'Avara',
-                fontWeight: 400,
-                marginBottom: 24,
-                color: '#2C2C2C',
-              }}>
-                emotion patterns
-              </h2>
-              <EmotionPatternEditor />
-            </div>
+            <LockedEditPanel>
+              <div style={{ width: '100%' }}>
+                <h2 style={{
+                  fontSize: 18,
+                  fontFamily: 'Avara',
+                  fontWeight: 400,
+                  marginBottom: 24,
+                  color: '#2C2C2C',
+                  textAlign: 'center',
+                }}>
+                  emotion patterns
+                </h2>
+                <EmotionPatternEditor />
+              </div>
+            </LockedEditPanel>
           )}
         </main>
 
