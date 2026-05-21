@@ -15,8 +15,18 @@ export const MACHINES = [
 ]
 
 const fmt  = (n) => Math.round(n * 100) / 100
+
 const circ = (cx, cy, r) =>
   `<circle cx="${fmt(cx)}" cy="${fmt(cy)}" r="${r}" fill="white" stroke="black" stroke-width="0.1"/>`
+
+const dxfCircle = (cx, cy, r) =>
+  `0\nCIRCLE\n8\n0\n10\n${fmt(cx)}\n20\n${fmt(cy)}\n30\n0\n40\n${fmt(r)}`
+
+const dxfPolyline = (pts) => {
+  const header = `0\nLWPOLYLINE\n8\n0\n90\n${pts.length}\n70\n1`
+  const verts  = pts.map(([x, y]) => `10\n${fmt(x)}\n20\n${fmt(y)}`).join('\n')
+  return header + '\n' + verts
+}
 
 export class CutExporter {
   getMachine(id) {
@@ -140,17 +150,119 @@ export class CutExporter {
     )
   }
 
-  /**
-   * Downloads one SVG file per page.
-   * Naming: punchcard_{machineId}.svg  or  punchcard_{machineId}_card{N}of{total}.svg
-   */
-  download(card, machineId = 'brother_24') {
-    const total    = card.totalRows()
+  generatePunchcardDXFs(pattern, machineId = 'brother_24') {
+    const machine   = this.getMachine(machineId)
+    const { maxRows } = machine
+    const totalRows = pattern.length
+    const pageCount = Math.ceil(totalRows / maxRows)
+    const dxfs      = []
 
-    const pattern  = []
-    for (let r = 0; r < total; r++) {
-      pattern.push(card.getRow(r).map(v => v ? 1 : 0))
+    for (let p = 0; p < pageCount; p++) {
+      const startRow = p * maxRows
+      const slice    = pattern.slice(startRow, startRow + maxRows)
+      dxfs.push(this._sliceToDXF(slice, machine))
     }
+
+    return dxfs
+  }
+
+  _sliceToDXF(rows, machine) {
+    const { stitches, stitchWidth, rowHeight } = machine
+
+    const patternRows = rows.length
+    const totalRows   = BLANK_ROWS * 2 + patternRows
+    const W = SIDE_MARGIN * 2 + stitches * stitchWidth
+    const H = totalRows * rowHeight
+
+    const entities = []
+
+    // 1. Card outline
+    const outlinePts = [
+      [2, 0], [W-2, 0], [W-1, 1], [W-1, 20], [W, 22],
+      [W, H-22], [W-1, H-20], [W-1, H-1], [W-2, H],
+      [2, H], [1, H-1], [1, H-20], [0, H-22],
+      [0, 22], [1, 20], [1, 1],
+    ]
+    entities.push(dxfPolyline(outlinePts))
+
+    // 2. Sprocket holes
+    const sprocketCount = Math.floor(totalRows / 2)
+    for (let i = 0; i < sprocketCount; i++) {
+      const cy = rowHeight + i * rowHeight * 2
+      entities.push(dxfCircle(6.5,     cy, SPROCKET_HOLE_R))
+      entities.push(dxfCircle(W - 6.5, cy, SPROCKET_HOLE_R))
+    }
+
+    // 3. Clip holes
+    const clipXL = SIDE_MARGIN + stitchWidth / 2 - 6.0
+    const clipXR = W - SIDE_MARGIN - stitchWidth / 2 + 6.0
+    for (let r = 0; r < totalRows; r++) {
+      const cy = rowHeight / 2 + r * rowHeight
+      entities.push(dxfCircle(clipXL, cy, CLIP_HOLE_R))
+      entities.push(dxfCircle(clipXR, cy, CLIP_HOLE_R))
+    }
+
+    // 4. Blank rows top
+    for (let r = 0; r < BLANK_ROWS; r++) {
+      const cy = rowHeight / 2 + r * rowHeight
+      for (let c = 0; c < stitches; c++)
+        entities.push(dxfCircle(SIDE_MARGIN + stitchWidth / 2 + c * stitchWidth, cy, PATTERN_HOLE_R))
+    }
+
+    // 5. Blank rows bottom
+    for (let r = 0; r < BLANK_ROWS; r++) {
+      const cy = H - (BLANK_ROWS - r) * rowHeight + rowHeight / 2
+      for (let c = 0; c < stitches; c++)
+        entities.push(dxfCircle(SIDE_MARGIN + stitchWidth / 2 + c * stitchWidth, cy, PATTERN_HOLE_R))
+    }
+
+    // 6. Pattern holes
+    const cardCols  = rows[0]?.length ?? stitches
+    const colOffset = Math.floor((stitches - cardCols) / 2)
+    for (let r = 0; r < patternRows; r++) {
+      const cy  = rowHeight / 2 + (BLANK_ROWS + r) * rowHeight
+      rows[r].forEach((val, c) => {
+        if (!val) return
+        const col = c + colOffset
+        if (col < 0 || col >= stitches) return
+        entities.push(dxfCircle(SIDE_MARGIN + stitchWidth / 2 + col * stitchWidth, cy, PATTERN_HOLE_R))
+      })
+    }
+
+    const header =
+      `0\nSECTION\n2\nHEADER\n` +
+      `9\n$ACADVER\n1\nAC1015\n` +
+      `9\n$INSUNITS\n70\n4\n` +
+      `0\nENDSEC\n`
+
+    return (
+      header +
+      `0\nSECTION\n2\nENTITIES\n` +
+      entities.join('\n0\n') +
+      `\n0\nENDSEC\n0\nEOF`
+    )
+  }
+
+  download(card, machineId = 'brother_24') {
+    const pattern = []
+    for (let r = 0; r < card.totalRows(); r++)
+      pattern.push(card.getRow(r).map(v => v ? 1 : 0))
+
+    const dxfs      = this.generatePunchcardDXFs(pattern, machineId)
+    const pageCount = dxfs.length
+
+    dxfs.forEach((dxf, i) => {
+      const name = pageCount === 1
+        ? `punchcard_${machineId}.dxf`
+        : `punchcard_${machineId}_card${i + 1}of${pageCount}.dxf`
+      setTimeout(() => this._downloadFile(dxf, name, 'application/dxf'), i * 200)
+    })
+  }
+
+  downloadSVG(card, machineId = 'brother_24') {
+    const pattern = []
+    for (let r = 0; r < card.totalRows(); r++)
+      pattern.push(card.getRow(r).map(v => v ? 1 : 0))
 
     const svgs      = this.generatePunchcardSVGs(pattern, machineId)
     const pageCount = svgs.length
@@ -159,12 +271,12 @@ export class CutExporter {
       const name = pageCount === 1
         ? `punchcard_${machineId}.svg`
         : `punchcard_${machineId}_card${i + 1}of${pageCount}.svg`
-      setTimeout(() => this._downloadSVG(svg, name), i * 200)
+      setTimeout(() => this._downloadFile(svg, name, 'image/svg+xml'), i * 200)
     })
   }
 
-  _downloadSVG(svg, filename) {
-    const blob = new Blob([svg], { type: 'image/svg+xml' })
+  _downloadFile(content, filename, mime) {
+    const blob = new Blob([content], { type: mime })
     const url  = URL.createObjectURL(blob)
     const a    = document.createElement('a')
     a.href     = url

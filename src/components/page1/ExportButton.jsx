@@ -23,6 +23,13 @@ export default function ExportButton() {
     svgExporter.download(card, 'punchcard.svg', { gridColor, showLabels })
   }
 
+  const handleCutSVG = () => {
+    if (willCrop && !confirm(`${machine.label} is narrower than the ${cardCols}-stitch pattern. The left and right edges will be cropped. Export anyway?`)) {
+      return
+    }
+    cutExporter.downloadSVG(card, machineId)
+  }
+
   const handleCutExport = () => {
     if (willCrop && !confirm(`${machine.label} is narrower than the ${cardCols}-stitch pattern. The left and right edges will be cropped. Export anyway?`)) {
       return
@@ -101,7 +108,7 @@ export default function ExportButton() {
         <div style={{ width: 1, height: 18, background: '#e0d9ce' }} />
 
         <button
-          onClick={handleCutExport}
+          onClick={handleCutSVG}
           title={`Vinyl cutter SVG — ${machine?.label ?? ''}`}
           style={{
             padding: '8px 20px',
@@ -115,6 +122,23 @@ export default function ExportButton() {
           }}
         >
           cut SVG ✂
+        </button>
+
+        <button
+          onClick={handleCutExport}
+          title={`Vinyl cutter DXF — ${machine?.label ?? ''}`}
+          style={{
+            padding: '8px 20px',
+            background: 'transparent',
+            color: '#8B2020',
+            border: '1px solid #8B2020',
+            borderRadius: 6,
+            fontSize: 13,
+            cursor: 'pointer',
+            fontFamily: "'Avara', serif",
+          }}
+        >
+          cut DXF ✂
         </button>
 
         <span style={{ fontSize: 10, color: '#bbb', fontFamily: 'monospace' }}>

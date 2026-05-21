@@ -175,6 +175,9 @@ export default function SplashScreen({ onStart }) {
       type: 'triangle',
       filter: 1100,
     })
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => {})
+    }
     setExiting(true)
     setTimeout(onStart, 700)
   }
@@ -186,8 +189,17 @@ export default function SplashScreen({ onStart }) {
     return line.text.slice(0, show)
   })
 
+  const handleScreenClick = () => {
+    if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => {})
+    }
+    setCharIdx(0)
+    setDotCount(1)
+    setShowStart(false)
+  }
+
   return (
-    <div style={{
+    <div onClick={handleScreenClick} style={{
       position: 'fixed',
       inset: 0,
       background: '#F5F0E8',
@@ -261,7 +273,7 @@ export default function SplashScreen({ onStart }) {
         {/* Start button */}
         <div style={{ textAlign: 'center', marginTop: '54px' }}>
           <button
-            onClick={handleStart}
+            onClick={e => { e.stopPropagation(); handleStart() }}
             onMouseEnter={() => setHoverStart(true)}
             onMouseLeave={() => setHoverStart(false)}
             disabled={!showStart}
