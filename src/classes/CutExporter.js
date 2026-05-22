@@ -22,11 +22,14 @@ const circ = (cx, cy, r) =>
 const dxfCircle = (cx, cy, r) =>
   `0\nCIRCLE\n8\n0\n10\n${fmt(cx)}\n20\n${fmt(cy)}\n30\n0\n40\n${fmt(r)}`
 
-const dxfPolyline = (pts) => {
-  const header = `0\nLWPOLYLINE\n8\n0\n90\n${pts.length}\n70\n1`
-  const verts  = pts.map(([x, y]) => `10\n${fmt(x)}\n20\n${fmt(y)}`).join('\n')
-  return header + '\n' + verts
-}
+const dxfLine = (x1, y1, x2, y2) =>
+  `0\nLINE\n8\n0\n10\n${fmt(x1)}\n20\n${fmt(y1)}\n30\n0\n11\n${fmt(x2)}\n21\n${fmt(y2)}\n31\n0`
+
+const dxfClosedLines = (pts) =>
+  pts.map(([x1, y1], i) => {
+    const [x2, y2] = pts[(i + 1) % pts.length]
+    return dxfLine(x1, y1, x2, y2)
+  })
 
 export class CutExporter {
   getMachine(id) {
@@ -183,7 +186,7 @@ export class CutExporter {
       [2, H], [1, H-1], [1, H-20], [0, H-22],
       [0, 22], [1, 20], [1, 1],
     ]
-    entities.push(dxfPolyline(outlinePts))
+    entities.push(...dxfClosedLines(outlinePts))
 
     // 2. Sprocket holes
     const sprocketCount = Math.floor(totalRows / 2)
@@ -229,6 +232,19 @@ export class CutExporter {
       })
     }
 
+    // Scale guide: 10mm square and a full-width line below the card.
+    entities.push(
+      ...dxfClosedLines([
+        [4, H + 6],
+        [14, H + 6],
+        [14, H + 16],
+        [4, H + 16],
+      ]),
+      dxfLine(0, H + 19, W, H + 19),
+      dxfLine(0, H + 17, 0, H + 21),
+      dxfLine(W, H + 17, W, H + 21)
+    )
+
     const header =
       `0\nSECTION\n2\nHEADER\n` +
       `9\n$ACADVER\n1\nAC1015\n` +
@@ -238,7 +254,7 @@ export class CutExporter {
     return (
       header +
       `0\nSECTION\n2\nENTITIES\n` +
-      entities.join('\n0\n') +
+      entities.join('\n') +
       `\n0\nENDSEC\n0\nEOF`
     )
   }
